@@ -1,15 +1,23 @@
-const usuariosControlador = require('./usuarios-controlador');
-const passport = require('passport');
+const usuariosControlador = require("./usuarios-controlador");
+const middwaresAutenticacao = require("./middwares-autenticacao");
 
-module.exports = app => {
+module.exports = (app) => {
   app
-     .route('/usuario/login')
-     .post(passport.authenticate('local', {session: false}), usuariosControlador.login);
+    .route("/usuario/login")
+    .post(
+      middwaresAutenticacao.local,
+      usuariosControlador.login
+    );
 
   app
-    .route('/usuario')
+    .route("/usuario")
     .post(usuariosControlador.adiciona)
     .get(usuariosControlador.lista);
 
-  app.route('/usuario/:id').delete(usuariosControlador.deleta);
+  app
+    .route("/usuario/:id")
+    .delete(
+      middwaresAutenticacao.bearer,
+      usuariosControlador.deleta
+    );
 };
