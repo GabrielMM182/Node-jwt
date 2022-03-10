@@ -1,3 +1,4 @@
+const { redirect } = require('express/lib/response');
 const passport = require('passport');
 
 module.exports = {
@@ -8,6 +9,11 @@ module.exports = {
       (erro, usuario, info) => {
         if (erro && erro.name === 'InvalidArgumentError') {
           return res.status(401).json({ erro: erro.message });
+        }
+
+        if (erro && erro.name === 'TokenExpiredError') {
+            return redirect.status(401)
+            .json({ erro: erro.message, expiradoEm: erro.expiredAt });
         }
 
         if (erro) {
@@ -28,7 +34,7 @@ module.exports = {
     passport.authenticate(
       'bearer',
       { session: false },
-      (erro, usuario, info) => {
+      (erro, usuario, info) => { // info recupera o token
         if (erro && erro.name === 'JsonWebTokenError') {
           return res.status(401).json({ erro: erro.message });
         }
@@ -41,6 +47,7 @@ module.exports = {
           return res.status(401).json();
         }
 
+        req.token = info.token;
         req.user = usuario;
         return next();
       }
